@@ -14,3 +14,6 @@ Install
 -------
 
 TODO
+----
+ - Finish documentation (this file! :-)
+ - Integrate MediaInfo (lists and play)
