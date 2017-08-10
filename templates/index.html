@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Pelis</title>
+  <link href= "{{url_for('static',filename='css/bootstrap.min.css')}}"
+        rel="stylesheet" type="text/css">
+  <!--[if lt IE 9]>
+    <script src="{{url_for('static',filename='js/html5shiv.min.js')}}"></script>
+    <script src="{{url_for('static',filename='js/respond.min.js')}}"></script>
+  <![endif]-->
+  <meta http-equiv=”refresh” content=”60″ />
+</head>
+
+<body>
+  <h3 class="text-center">{{ video.name }}</h3>
+
+
+  {% if video.time_percent is defined  %}
+  <div class="input-group input-group-sm" id='seek'>
+    <input id="minute" type="text" class="text form-control" placeholder="de 0 a {{ video.time_total  }}">
+    <span class="input-group-btn">
+      <button class="btn btn-default" type= "button" id="btn_to_minute"> Ir a minuto! </button>
+    </span>
+  </div>
+
+
+  <div class="progress">
+    <div class="progress-bar progress-bar-striped active"
+       role= "progressbar"
+       aria-valuenow="{{ video.time_percent }}"
+       aria-valuemin= "0"
+       aria-valuemax="{{ video.time_total }}"
+       style= "width: {{ video.time_percent }}%;">
+       {% if video.time_percent >= 50 %}
+        min {{ video.time_current }} de {{ video.time_total }}
+       {% endif %}
+    </div>
+    {% if video.time_percent < 50 %}
+      min {{ video.time_current }} de {{ video.time_total }}
+    {% endif %}
+  </div>
+
+  <div class="btn-group" role="group" aria-label="Playing Controls">
+    <a class="btn btn-default" href="{{url_for('play')}}">
+      <span class= "glyphicon glyphicon-play" aria-hidden= "true"></span>
+    </a>
+    <a class="btn btn-default" href="{{url_for('pause')}}">
+      <span class= "glyphicon glyphicon-stop" aria-hidden= "true"></span>
+    </a>
+  </div>
+
+  <div class="btn-group pull-right" role="group" aria-label="Audio Tracks">
+    {% for track in video.atracks %}
+    {% if track.active %}
+    <a class="btn btn-default"
+       href= "{{url_for('atrack',track=track.id)}}"
+       disabled="disabled">
+       {{ track.name }}
+    </a>
+    {% else %}
+    <a class="btn btn-default"
+       href= "{{url_for('atrack',track=track.id)}}">
+       {{ track.name }}
+    </a>
+    {% endif %}
+    {% endfor %}
+  </div>
+
+  <hr>
+  <button type="button" class="btn btn-default" disabled>
+    rtp://{{ video.multicast_ip }}
+  </button>
+<!--
+  {% if video.active == 1 %}
+  <button type="button" class="btn btn-success" disabled>Playing</button>
+  {% else %}
+  <button type="button" class="btn btn-danger" disabled>Stopped</button>
+  {% endif%}
+  -->
+  <div class="btn-group pull-right" role="group" aria-label="VLC Control">
+    <a class="btn btn-default" href="{{url_for('reload')}}" id= "btn_reload">
+        <span class="glyphicon glyphicon-refresh" aria-hidden= "true"></span>
+    </a>
+  </div>
+  {% endif %}
+
+  <ol class="breadcrumb">
+    <li>
+      <a href="{{url_for('index')}}">
+        <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>
+        &nbsp;root
+      </a>
+    </li>
+    {% for current in folder.current %}
+    <li>
+      <a href="{{url_for('index',path=current.path)}}">{{ current.name }}</a>
+    </li>
+    {% endfor %}
+  </ol>
+
+  <div class="list-group">
+    {% for d in folder.dirs %}
+    <a href= "{{url_for('index',path=d.path)}}" class= "list-group-item">
+      <span class= "glyphicon glyphicon-folder-open" aria-hidden= "true"></span>
+      &nbsp;{{ d.name }}
+    </a>
+    {% endfor %}
+    {% for v in folder.videos %}
+    <a href= "{{url_for('video',path=v.path)}}" class= "list-group-item">
+      <span class= "glyphicon glyphicon-expand" aria-hidden= "true"></span>
+      &nbsp;{{ v.name }}
+    </a>
+    {% endfor %}
+  </div>
+
+  <center>
+      <a class="btn btn-primary" href= "{{url_for('restart_vlc')}}">
+      <span class="glyphicon glyphicon-repeat" aria-hidden= "true"></span>
+      &nbsp;Reiniciar VLC
+    </a>
+    <a class="btn btn-warning" href= "{{url_for('reboot')}}">
+      <span class="glyphicon glyphicon-refresh" aria-hidden= "true"></span>
+      &nbsp;Reiniciar
+    </a>
+    <a class="btn btn-danger" href= "{{url_for('shutdown')}}">
+      <span class="glyphicon glyphicon-off" aria-hidden= "true"></span>
+      &nbsp;Apagar
+    </a>
+  </center>
+
+  <script src="{{url_for('static',filename='js/jquery.min.js')}}" type="text/javascript"></script>
+  <script src="{{url_for('static',filename='js/bootstrap.min.js')}}" type= "text/javascript"></script>
+  <script type="text/javascript">
+      $(function () {
+        $("#seek .btn").click(function() {
+            var minute = Number($("#seek .text").val());
+            if (minute > 0) {
+                window.location.href = '/seek/' + minute;
+             }
+        });
+      });
+  </script>
+</body>
+</html>
